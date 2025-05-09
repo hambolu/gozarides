@@ -1,0 +1,230 @@
+import 'package:flutter/material.dart';
+import '../../../theme/colors.dart';
+
+class HomeTab extends StatelessWidget {
+  const HomeTab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth = (screenWidth - 43) / 2; // Account for padding and spacing
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                // Welcome section with notification
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Hello Joseph!',
+                      style: TextStyle(
+                        color: AppColors.text,
+                        fontSize: 18,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Stack(
+                      children: [
+                        SizedBox(
+                          width: 28,
+                          height: 28,
+                          child: Icon(
+                            Icons.notifications_outlined,
+                            color: AppColors.text,
+                          ),
+                        ),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: ShapeDecoration(
+                              color: AppColors.error,
+                              shape: const OvalBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // Account setup notification
+                Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: ShapeDecoration(
+                    color: AppColors.primaryLight,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 28),
+                      Icon(
+                        Icons.info_outline,
+                        color: AppColors.text,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Finish setting up your account!',
+                        style: TextStyle(
+                          color: AppColors.text,
+                          fontSize: 14,
+                          fontFamily: 'Lato',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const Spacer(),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: AppColors.text,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 16),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Wallet section
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: ShapeDecoration(
+                    color: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Wallet Balance',
+                            style: TextStyle(
+                              color: AppColors.buttonText,
+                              fontSize: 14,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 7),
+                          Text(
+                            '₦10,000.00',
+                            style: TextStyle(
+                              color: AppColors.buttonText,
+                              fontSize: 26,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        width: 98,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: ShapeDecoration(
+                          color: AppColors.surface,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.add,
+                              color: AppColors.primary,
+                              size: 24,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Add Funds',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 12,
+                                fontFamily: 'Lato',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Action buttons grid
+                Wrap(
+                  spacing: 11,
+                  runSpacing: 16,
+                  children: [
+                    _buildActionCard('Search Seller ID', const Color(0xFFEAF4FF), Icons.search, cardWidth),
+                    _buildActionCard('Check Messages', const Color(0xFFFFF8E2), Icons.message, cardWidth),
+                    _buildActionCard('View My Orders', const Color(0xFFE8FBF6), Icons.receipt_long, cardWidth),
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionCard(String title, Color backgroundColor, IconData icon, double width) {
+    return Container(
+      width: width,
+      padding: const EdgeInsets.all(24),
+      decoration: ShapeDecoration(
+        color: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shadows: const [
+          BoxShadow(
+            color: Color(0x0C000000),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+            spreadRadius: 0,
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: ShapeDecoration(
+              color: backgroundColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+            ),
+            child: Icon(
+              icon,
+              color: AppColors.text,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: TextStyle(
+              color: AppColors.text,
+              fontSize: 14,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
