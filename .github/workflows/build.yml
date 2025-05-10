@@ -20,7 +20,7 @@ jobs:
       - name: Set up Java and Flutter
         uses: subosito/flutter-action@v2 # Using a more recent version
         with:
-          flutter-version: '3.19.5'
+          flutter-version: '3.29.3'
           channel: 'stable'
           java-version: '11' # Recommended for Flutter
           distribution: 'temurin'
