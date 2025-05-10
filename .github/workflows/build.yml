@@ -22,7 +22,7 @@ jobs:
         with:
           flutter-version: '3.29.3'
           channel: 'stable'
-          java-version: '11' # Recommended for Flutter
+          java-version: '17' # Recommended for Flutter
           distribution: 'temurin'
           cache: true
 
