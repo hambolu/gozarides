@@ -17,78 +17,81 @@ class WalletBalanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 398,
-      padding: const EdgeInsets.all(24),
+      width: double.infinity,
+      padding: const EdgeInsets.all(20), // Reduced padding
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         color: const Color(0xFFE63946),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 139,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Wallet Balance',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 7),
-                Text(
-                  '₦${balance.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: onActionPressed,
-            child: Container(
-              width: 98,
-              height: 68,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: ShapeDecoration(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-              ),
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(actionIcon, color: const Color(0xFFE63946), size: 24),
-                  const SizedBox(height: 4),
-                  Text(
-                    actionButtonText,
-                    style: const TextStyle(
-                      color: Color(0xFFE63946),
-                      fontSize: 12,
+                  const Text(
+                    'Wallet Balance',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4), // Reduced spacing
+                  Text(
+                    '₦${balance.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24, // Slightly reduced font size
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onActionPressed,
+                borderRadius: BorderRadius.circular(6),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Adjusted padding
+                  decoration: ShapeDecoration(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(actionIcon, color: const Color(0xFFE63946), size: 20), // Reduced icon size
+                      const SizedBox(height: 2), // Reduced spacing
+                      Text(
+                        actionButtonText,
+                        style: const TextStyle(
+                          color: Color(0xFFE63946),
+                          fontSize: 11, // Slightly reduced font size
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

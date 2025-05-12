@@ -3,6 +3,7 @@ import 'package:gozarides/models/transaction_enums.dart';
 import '../../models/transaction_model.dart';
 import '../../components/wallet/wallet_balance_card.dart';
 import '../../components/wallet/transaction_item.dart';
+import 'add_funds_screen.dart';
 
 class BuyerWalletScreen extends StatelessWidget {
   final List<TransactionModel> transactions = [
@@ -93,7 +94,10 @@ class BuyerWalletScreen extends StatelessWidget {
                 actionButtonText: 'Add Funds',
                 actionIcon: Icons.add,
                 onActionPressed: () {
-                  // TODO: Implement add funds
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AddFundsScreen()),
+                  );
                 },
               ),
               const SizedBox(height: 24),

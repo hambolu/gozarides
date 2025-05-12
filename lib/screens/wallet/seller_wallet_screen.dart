@@ -4,6 +4,7 @@ import '../../models/transaction_model.dart';
 import '../../components/wallet/wallet_balance_card.dart';
 import '../../components/wallet/transaction_item.dart';
 import '../../components/wallet/seller_stats_card.dart';
+import 'withdraw_screen.dart';
 
 class SellerWalletScreen extends StatelessWidget {
   final List<TransactionModel> transactions = [
@@ -94,20 +95,27 @@ class SellerWalletScreen extends StatelessWidget {
                 actionButtonText: 'Withdraw',
                 actionIcon: Icons.account_balance_wallet,
                 onActionPressed: () {
-                  // TODO: Implement withdrawal
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const WithdrawScreen()),
+                  );
                 },
               ),
               const SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  SellerStatsCard(
-                    title: 'Total Earning',
-                    amount: 50000,
+                  Expanded(
+                    child: SellerStatsCard(
+                      title: 'Total Earning',
+                      amount: 50000,
+                    ),
                   ),
-                  SellerStatsCard(
-                    title: 'Pending Payout',
-                    amount: 50000,
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: SellerStatsCard(
+                      title: 'Pending Payout',
+                      amount: 50000,
+                    ),
                   ),
                 ],
               ),

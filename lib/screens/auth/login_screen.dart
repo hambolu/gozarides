@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.pushReplacementNamed(context, '/onboarding'),
               ),
               const SizedBox(height: 24),
               Form(

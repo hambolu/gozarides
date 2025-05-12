@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../theme/colors.dart';
+import '../../../screens/home/tabs/search_tab.dart';
+import '../../../screens/home/tabs/message_tab.dart';
+import '../../../screens/home/tabs/order_tab.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({Key? key}) : super(key: key);
@@ -168,9 +171,10 @@ class HomeTab extends StatelessWidget {
                   spacing: 11,
                   runSpacing: 16,
                   children: [
-                    _buildActionCard('Search Seller ID', const Color(0xFFEAF4FF), Icons.search, cardWidth),
-                    _buildActionCard('Check Messages', const Color(0xFFFFF8E2), Icons.message, cardWidth),
-                    _buildActionCard('View My Orders', const Color(0xFFE8FBF6), Icons.receipt_long, cardWidth),
+                    _buildActionCard('Search Seller ID', const Color(0xFFEAF4FF), Icons.search, cardWidth, context),
+                    _buildActionCard('Check Messages', const Color(0xFFFFF8E2), Icons.message, cardWidth, context),
+                    _buildActionCard('View My Orders', const Color(0xFFE8FBF6), Icons.receipt_long, cardWidth, context),
+                    _buildActionCard('Order my Ride', const Color(0xFFE8FBF6), Icons.local_taxi, cardWidth, context),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -182,48 +186,77 @@ class HomeTab extends StatelessWidget {
     );
   }
 
-  Widget _buildActionCard(String title, Color backgroundColor, IconData icon, double width) {
-    return Container(
-      width: width,
-      padding: const EdgeInsets.all(24),
-      decoration: ShapeDecoration(
-        color: AppColors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x0C000000),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-            spreadRadius: 0,
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: ShapeDecoration(
-              color: backgroundColor,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+  Widget _buildActionCard(String title, Color backgroundColor, IconData icon, double width, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        switch (title) {
+          case 'Order my Ride':
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (context) => const CreateOrderSheet(),
+            );
+            break;
+          case 'Search Seller ID':
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => const SearchTab(),
+            ));
+            break;
+          case 'Check Messages':
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => const MessageTab(),
+            ));
+            break;
+          case 'View My Orders':
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => const OrderTab(),
+            ));
+            break;
+        }
+      },
+      child: Container(
+        width: width,
+        padding: const EdgeInsets.all(24),
+        decoration: ShapeDecoration(
+          color: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shadows: const [
+            BoxShadow(
+              color: Color(0x0C000000),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+              spreadRadius: 0,
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: ShapeDecoration(
+                color: backgroundColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+              ),
+              child: Icon(
+                icon,
+                color: AppColors.text,
+              ),
             ),
-            child: Icon(
-              icon,
-              color: AppColors.text,
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: TextStyle(
+                color: AppColors.text,
+                fontSize: 14,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: TextStyle(
-              color: AppColors.text,
-              fontSize: 14,
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

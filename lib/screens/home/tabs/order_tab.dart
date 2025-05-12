@@ -52,13 +52,14 @@ class EmptyOrderState extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.receipt_long_outlined,
-          size: 64,
-          color: AppColors.textSecondary.withOpacity(0.5),
+        Image.asset(
+          'assets/images/empty-cart.png',
+          width: 200,
+          height: 200,
+          fit: BoxFit.contain,
         ),
         const SizedBox(height: 16),
-        Text(
+        const Text(
           'No Orders Yet',
           style: TextStyle(
             color: AppColors.text,
@@ -68,7 +69,7 @@ class EmptyOrderState extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
+        const Text(
           'Create your first order by tapping the + button',
           style: TextStyle(
             color: AppColors.textSecondary,

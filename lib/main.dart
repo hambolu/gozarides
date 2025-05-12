@@ -10,6 +10,7 @@ import 'screens/auth/forgot_password_screen.dart';
 import 'screens/auth/reset_password_screen.dart';
 import 'screens/auth/otp_verification_screen.dart';
 import 'screens/home/home_screen.dart';
+import 'screens/order_details_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -50,6 +51,9 @@ class MyApp extends StatelessWidget {
               phoneNumber: ModalRoute.of(context)?.settings.arguments as String,
             ),
         '/home': (context) => const HomeScreen(),
+        '/order-details': (context) => OrderDetailsScreen(
+              orderId: ModalRoute.of(context)?.settings.arguments as String,
+            ),
       },
     );
   }

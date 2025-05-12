@@ -6,6 +6,7 @@ import '../../../screens/profile/get_verified_screen.dart';
 import '../../../screens/profile/notification_preferences_screen.dart';
 import '../../../screens/profile/privacy_security_screen.dart';
 import '../../../screens/profile/help_center_screen.dart';
+import '../../../screens/wallet/wallet_screen.dart';
 import '../../../models/user_model.dart';
 
 class ProfileTab extends StatelessWidget {
@@ -209,6 +210,12 @@ class ProfileTab extends StatelessWidget {
                         _buildListTile(
                           title: 'My Wallet',
                           icon: Icons.account_balance_wallet_outlined,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WalletScreen(),
+                            ),
+                          ),
                         ),
                         _buildDivider(),
                         if (user.isSeller) ...[
