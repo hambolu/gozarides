@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../components/custom_button.dart';
+
+enum PaymentMethod { debitCard, bankTransfer }
 
 class AddFundsScreen extends StatefulWidget {
   const AddFundsScreen({Key? key}) : super(key: key);
@@ -8,8 +11,14 @@ class AddFundsScreen extends StatefulWidget {
 }
 
 class _AddFundsScreenState extends State<AddFundsScreen> {
-  bool _isDebitCardSelected = true;
-  final TextEditingController _amountController = TextEditingController(text: '₦15,000.00');
+  PaymentMethod _selectedPaymentMethod = PaymentMethod.debitCard;
+  final TextEditingController _amountController = TextEditingController(text: '15,000.00');
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
 
   Widget _buildBankTransferSection() {
     return Column(
@@ -33,73 +42,93 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
             color: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
-          child: Wrap(
-            alignment: WrapAlignment.start,
-            runAlignment: WrapAlignment.center,
-            spacing: 10,
-            runSpacing: 12,
-            children: const [
-              Text(
-                'Bank Name',
-                style: TextStyle(
-                  color: Color(0xFF444444),
-                  fontSize: 14,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Text(
-                'Wema Bank',
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  color: Color(0xFF212121),
-                  fontSize: 16,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(
-                width: 145,
-                child: Text(
-                  'Account Number',
-                  style: TextStyle(
-                    color: Color(0xFF444444),
-                    fontSize: 14,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w400,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text(
+                    'Bank Name',
+                    style: TextStyle(
+                      color: Color(0xFF444444),
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                ),
-              ),
-              SizedBox(
-                width: 93.90,
-                child: Text(
-                  '0123456789',
-                  style: TextStyle(
-                    color: Color(0xFF212121),
-                    fontSize: 16,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w500,
+                  Text(
+                    'Wema Bank',
+                    style: TextStyle(
+                      color: Color(0xFF212121),
+                      fontSize: 16,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
+                ],
               ),
-              Text(
-                'Account Name',
-                style: TextStyle(
-                  color: Color(0xFF444444),
-                  fontSize: 14,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w400,
-                ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Account Number',
+                    style: TextStyle(
+                      color: Color(0xFF444444),
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      const Text(
+                        '0123456789',
+                        style: TextStyle(
+                          color: Color(0xFF212121),
+                          fontSize: 16,
+                          fontFamily: 'Lato',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                          // TODO: Implement copy functionality
+                        },
+                        child: const Icon(
+                          Icons.copy_rounded,
+                          size: 20,
+                          color: Color(0xFFF42B4E),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              Text(
-                'QUIKRIDE',
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  color: Color(0xFF212121),
-                  fontSize: 16,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w500,
-                ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text(
+                    'Account Name',
+                    style: TextStyle(
+                      color: Color(0xFF444444),
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    'QUIKRIDE',
+                    style: TextStyle(
+                      color: Color(0xFF212121),
+                      fontSize: 16,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -112,14 +141,23 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
             color: const Color(0xFFFDEEEF),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
-          child: const Text(
-            'Make sure the name on the sending account matches your profile. Your wallet will be credited automatically within a few minutes after the transfer.',
-            style: TextStyle(
-              color: Color(0xFF444444),
-              fontSize: 12,
-              fontFamily: 'Lato',
-              fontWeight: FontWeight.w400,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Expanded(
+                child: Text(
+                  'Make sure the name on the sending account matches your profile. Your wallet will be credited automatically within a few minutes after the transfer.',
+                  style: TextStyle(
+                    color: Color(0xFF444444),
+                    fontSize: 12,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -132,7 +170,7 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
       children: [
         const SizedBox(height: 24),
         const Text(
-          'Select a Bank Card',
+          'Choose a card or add a new one',
           style: TextStyle(
             color: Color(0xFF212121),
             fontSize: 14,
@@ -140,149 +178,44 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 16),
         Container(
           width: double.infinity,
+          height: 56,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: ShapeDecoration(
             color: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(color: Color(0xFFE0E0E0)),
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
-          child: Column(
-            children: [
-              // Mastercard
-              Container(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9D9D9),
-                        border: Border.all(),
-                      ),
-                      child: Image.network(
-                        "https://placehold.co/54x36",
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Mastercard',
-                            style: TextStyle(
-                              color: Color(0xFF212121),
-                              fontSize: 14,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          Text(
-                            '**** **** **** 3456',
-                            style: TextStyle(
-                              color: Color(0xFF212121),
-                              fontSize: 14,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Radio<bool>(
-                      value: true,
-                      groupValue: true,
-                      onChanged: (value) {},
-                      activeColor: const Color(0xFFE63946),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1, color: Color(0xFFEAEAEA)),
-              // Visa Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9D9D9),
-                        border: Border.all(),
-                      ),
-                      child: Image.network(
-                        "https://placehold.co/54x36",
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Visa',
-                            style: TextStyle(
-                              color: Color(0xFF212121),
-                              fontSize: 14,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          Text(
-                            '**** **** **** 3456',
-                            style: TextStyle(
-                              color: Color(0xFF212121),
-                              fontSize: 14,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Radio<bool>(
-                      value: false,
-                      groupValue: true,
-                      onChanged: (value) {},
-                      activeColor: const Color(0xFFE63946),
-                    ),
-                  ],
+          child: Row(
+            children: const [
+              Icon(Icons.add_circle_outline, color: Color(0xFFF42B4E)),
+              SizedBox(width: 12),
+              Text(
+                'Add New Card',
+                style: TextStyle(
+                  color: Color(0xFF212121),
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        // Add Card Button
-        Container(
-          width: double.infinity,
-          height: 63,
-          decoration: ShapeDecoration(
-            shape: RoundedRectangleBorder(
-              side: const BorderSide(color: Color(0xFFE63946)),
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Center(
-            child: Text(
-              'Add Bank Card',
-              style: TextStyle(
-                color: Color(0xFFE63946),
-                fontSize: 14,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildPaymentMethodSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         const Text(
-          'Amount',
+          'Payment Method',
           style: TextStyle(
             color: Color(0xFF212121),
             fontSize: 14,
@@ -293,27 +226,89 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
         const SizedBox(height: 8),
         Container(
           width: double.infinity,
-          height: 52,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          height: 48,
+          padding: const EdgeInsets.all(4),
           decoration: ShapeDecoration(
-            color: Colors.white,
+            color: const Color(0xFFF5F5F5),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: TextField(
-            controller: _amountController,
-            style: const TextStyle(
-              color: Color(0xFF444444),
-              fontSize: 16,
-              fontFamily: 'Lato',
-              fontWeight: FontWeight.w600,
-            ),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
-            ),
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() {
+                    _selectedPaymentMethod = PaymentMethod.debitCard;
+                  }),
+                  child: Container(
+                    height: double.infinity,
+                    decoration: ShapeDecoration(
+                      color: _selectedPaymentMethod == PaymentMethod.debitCard ? Colors.white : Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      shadows: _selectedPaymentMethod == PaymentMethod.debitCard
+                          ? [
+                              const BoxShadow(
+                                color: Color(0x0C000000),
+                                blurRadius: 8,
+                                offset: Offset(0, 2),
+                                spreadRadius: 0,
+                              )
+                            ]
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Debit Card',
+                      style: TextStyle(
+                        color: _selectedPaymentMethod == PaymentMethod.debitCard ? const Color(0xFF212121) : const Color(0xFF757575),
+                        fontSize: 14,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() {
+                    _selectedPaymentMethod = PaymentMethod.bankTransfer;
+                  }),
+                  child: Container(
+                    height: double.infinity,
+                    decoration: ShapeDecoration(
+                      color: _selectedPaymentMethod == PaymentMethod.bankTransfer ? Colors.white : Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      shadows: _selectedPaymentMethod == PaymentMethod.bankTransfer
+                          ? [
+                              const BoxShadow(
+                                color: Color(0x0C000000),
+                                blurRadius: 8,
+                                offset: Offset(0, 2),
+                                spreadRadius: 0,
+                              )
+                            ]
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Bank Transfer',
+                      style: TextStyle(
+                        color: _selectedPaymentMethod == PaymentMethod.bankTransfer ? const Color(0xFF212121) : const Color(0xFF757575),
+                        fontSize: 14,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -323,138 +318,117 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
-        centerTitle: true,
-        title: const Text(
-          'Add Funds',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Color(0xFF212121),
-            fontSize: 18,
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
+        title: const Text(
+          'Add Funds',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
-      body: Stack(
+      body: Column(
         children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Payment Method Selector
-                  Container(
-                    width: double.infinity,
-                    height: 36,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _isDebitCardSelected = true),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 1),
-                              decoration: ShapeDecoration(
-                                color: _isDebitCardSelected ? const Color(0xFFE63946) : Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    width: 1,
-                                    color: _isDebitCardSelected ? const Color(0xFFE63946) : const Color(0xFF777777),
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Debit Card',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: _isDebitCardSelected ? Colors.white : const Color(0xFF777777),
-                                    fontSize: 14,
-                                    fontFamily: 'Lato',
-                                    fontWeight: _isDebitCardSelected ? FontWeight.w600 : FontWeight.w500,
-                                  ),
-                                ),
-                              ),
+                  const SizedBox(height: 24),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Amount',
+                        style: TextStyle(
+                          color: Color(0xFF212121),
+                          fontSize: 14,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        decoration: ShapeDecoration(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            side: const BorderSide(color: Color(0xFFE0E0E0)),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: TextField(
+                          controller: _amountController,
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(
+                            color: Color(0xFF212121),
+                            fontSize: 16,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                          ),
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            border: InputBorder.none,
+                            hintText: 'Enter amount',
+                            hintStyle: TextStyle(
+                              color: Color(0xFF9E9E9E),
+                              fontSize: 16,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.w400,
+                            ),
+                            prefixText: '₦ ',
+                            prefixStyle: TextStyle(
+                              color: Color(0xFF212121),
+                              fontSize: 16,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _isDebitCardSelected = false),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 1),
-                              decoration: ShapeDecoration(
-                                color: !_isDebitCardSelected ? const Color(0xFFE63946) : Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    width: 1,
-                                    color: !_isDebitCardSelected ? const Color(0xFFE63946) : const Color(0xFF777777),
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Bank Transfer',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: !_isDebitCardSelected ? Colors.white : const Color(0xFF777777),
-                                    fontSize: 14,
-                                    fontFamily: 'Lato',
-                                    fontWeight: !_isDebitCardSelected ? FontWeight.w600 : FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 24),
+                  // Payment Method Selector
+                  _buildPaymentMethodSelector(),
 
                   // Main Content Section
-                  _isDebitCardSelected ? _buildDebitCardSection() : _buildBankTransferSection(),
+                  _selectedPaymentMethod == PaymentMethod.debitCard ? _buildDebitCardSection() : _buildBankTransferSection(),
                 ],
               ),
             ),
           ),
-          // Continue Button at bottom
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 30,
-            child: GestureDetector(
-              onTap: () {
-                // TODO: Implement continue action
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x0C000000),
+                  blurRadius: 24,
+                  offset: Offset(0, -4),
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+            child: CustomButton(
+              text: _selectedPaymentMethod == PaymentMethod.debitCard 
+                  ? 'Continue' 
+                  : "I've made the transfer",
+              onPressed: () {
+                // TODO: Implement button action
               },
-              child: Container(
-                height: 56,
-                decoration: ShapeDecoration(
-                  color: const Color(0xFFE63946),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: Center(
-                  child: Text(
-                    _isDebitCardSelected ? 'Continue' : "I've made the transfer",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
             ),
           ),
         ],

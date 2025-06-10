@@ -3,6 +3,7 @@ import '../../../theme/colors.dart';
 import '../../../screens/home/tabs/search_tab.dart';
 import '../../../screens/home/tabs/message_tab.dart';
 import '../../../screens/home/tabs/order_tab.dart';
+import '../../../screens/notifications/notification_page.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({Key? key}) : super(key: key);
@@ -37,12 +38,22 @@ class HomeTab extends StatelessWidget {
                     ),
                     Stack(
                       children: [
-                        SizedBox(
-                          width: 28,
-                          height: 28,
-                          child: Icon(
-                            Icons.notifications_outlined,
-                            color: AppColors.text,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const NotificationPage(),
+                              ),
+                            );
+                          },
+                          child: SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: Icon(
+                              Icons.notifications_outlined,
+                              color: AppColors.text,
+                            ),
                           ),
                         ),
                         Positioned(

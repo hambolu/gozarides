@@ -7,6 +7,7 @@ import '../../../screens/profile/notification_preferences_screen.dart';
 import '../../../screens/profile/privacy_security_screen.dart';
 import '../../../screens/profile/help_center_screen.dart';
 import '../../../screens/wallet/wallet_screen.dart';
+import '../../../screens/wallet/add_funds_screen.dart';
 import '../../../models/user_model.dart';
 
 class ProfileTab extends StatelessWidget {
@@ -222,6 +223,12 @@ class ProfileTab extends StatelessWidget {
                           _buildListTile(
                             title: 'Payout Method',
                             icon: Icons.payment_outlined,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AddFundsScreen(),
+                              ),
+                            ),
                           ),
                           _buildDivider(),
                         ],
