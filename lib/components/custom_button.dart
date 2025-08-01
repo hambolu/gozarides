@@ -4,7 +4,7 @@ import '../theme/typography.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool isSecondary;
   final bool isLoading;
   final double? width;

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../components/custom_button.dart';
+import '../../services/payment_service.dart';
 
-enum PaymentMethod { debitCard, bankTransfer }
+enum PaymentMethod { card, bank_transfer }
 
 class AddFundsScreen extends StatefulWidget {
   const AddFundsScreen({Key? key}) : super(key: key);
@@ -11,8 +13,25 @@ class AddFundsScreen extends StatefulWidget {
 }
 
 class _AddFundsScreenState extends State<AddFundsScreen> {
-  PaymentMethod _selectedPaymentMethod = PaymentMethod.debitCard;
+  PaymentMethod _selectedPaymentMethod = PaymentMethod.card;
   final TextEditingController _amountController = TextEditingController(text: '15,000.00');
+
+  void _processPayment() async {
+    try {
+      final paymentService = Provider.of<PaymentService>(context, listen: false);
+      final amount = double.parse(_amountController.text.replaceAll(',', ''));
+      
+      await paymentService.initializePayment(
+        amount: amount,
+        paymentMethod: _selectedPaymentMethod.toString().split('.').last,
+        paymentDetails: {}, // Add any additional payment details here
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to process payment: $e')),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -315,6 +334,59 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
     );
   }
 
+  void _handleCardPayment() async {
+    try {
+      final amount = double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0.0;
+
+      if (amount <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter a valid amount')),
+        );
+        return;
+      }
+
+      // Get the current user's ID from auth provider
+      final user = context.read<AuthProvider>().firebaseUser;
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please log in to add funds')),
+        );
+        return;
+      }
+
+      // Add funds to wallet using WalletProvider
+      await context.read<WalletProvider>().addFunds(
+        user.uid,
+        amount,
+      );
+
+      // Show success message and navigate back
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Payment successful')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  void _handleBankTransfer() async {
+    // For bank transfer, we can just show a success message since the actual credit
+    // will happen when the bank transfer is confirmed
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Your wallet will be credited once the transfer is confirmed'),
+      ),
+    );
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -345,8 +417,8 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 24),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  // Amount Input
+                  Row(
                     children: [
                       const Text(
                         'Amount',
@@ -357,46 +429,59 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Container(
-                        width: double.infinity,
-                        decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            side: const BorderSide(color: Color(0xFFE0E0E0)),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: TextField(
-                          controller: _amountController,
-                          keyboardType: TextInputType.number,
-                          style: const TextStyle(
-                            color: Color(0xFF212121),
-                            fontSize: 16,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w400,
-                          ),
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            border: InputBorder.none,
-                            hintText: 'Enter amount',
-                            hintStyle: TextStyle(
-                              color: Color(0xFF9E9E9E),
-                              fontSize: 16,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w400,
-                            ),
-                            prefixText: '₦ ',
-                            prefixStyle: TextStyle(
-                              color: Color(0xFF212121),
-                              fontSize: 16,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                          // TODO: Implement pasting functionality
+                        },
+                        child: const Icon(
+                          Icons.paste_rounded,
+                          size: 20,
+                          color: Color(0xFFF42B4E),
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    height: 56,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: ShapeDecoration(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(color: Color(0xFFE0E0E0)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: TextField(
+                      controller: _amountController,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(
+                        color: Color(0xFF212121),
+                        fontSize: 16,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w400,
+                      ),
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: InputBorder.none,
+                        hintText: 'Enter amount',
+                        hintStyle: TextStyle(
+                          color: Color(0xFF9E9E9E),
+                          fontSize: 16,
+                          fontFamily: 'Lato',
+                          fontWeight: FontWeight.w400,
+                        ),
+                        prefixText: '₦ ',
+                        prefixStyle: TextStyle(
+                          color: Color(0xFF212121),
+                          fontSize: 16,
+                          fontFamily: 'Lato',
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 24),
                   // Payment Method Selector
@@ -427,7 +512,11 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
                   ? 'Continue' 
                   : "I've made the transfer",
               onPressed: () {
-                // TODO: Implement button action
+                if (_selectedPaymentMethod == PaymentMethod.debitCard) {
+                  _handleCardPayment();
+                } else {
+                  _handleBankTransfer();
+                }
               },
             ),
           ),

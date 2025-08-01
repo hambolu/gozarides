@@ -1,7 +1,24 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'    try {
+      await context.read<AuthProvider>().signIn(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? 'Authentication failed';
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An unexpected error occurred. Please try again.';
+      });e:provider/provider.dart';
 import '../../components/custom_button.dart';
 import '../../components/custom_text_field.dart';
 import '../../theme/colors.dart';
+import '../../providers/auth_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -15,6 +32,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -23,10 +42,36 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Implement login logic
-      Navigator.pushReplacementNamed(context, '/home');
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await context.read<AuthBloc>().login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } on ApiException catch (e) {
+      setState(() {
+        _errorMessage = e.message;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An unexpected error occurred. Please try again.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -65,6 +110,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontSize: 16,
                       ),
                     ),
+                    if (_errorMessage != null) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                          color: AppColors.error,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 32),
                     CustomTextField(
                       label: 'Email',
@@ -115,7 +170,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 32),
                     CustomButton(
                       text: 'Login',
-                      onPressed: _handleLogin,
+                      onPressed: _isLoading ? null : _handleLogin,
+                      isLoading: _isLoading,
                     ),
                     const SizedBox(height: 24),
                     Row(

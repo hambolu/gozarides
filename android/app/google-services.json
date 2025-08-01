@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "780837622853",
+    "project_id": "gozarides-app",
+    "storage_bucket": "gozarides-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780837622853:android:84f00327ee4a2a927bff2c",
+        "android_client_info": {
+          "package_name": "com.example.gozarides"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXGegO-TN1cdUpBVzkoqLl7JT_olILr-U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

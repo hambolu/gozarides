@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../theme/colors.dart';
 import '../../components/custom_button.dart';
 import '../../components/custom_text_field.dart';
+import '../../providers/auth_provider.dart';
 
 class GetVerifiedScreen extends StatefulWidget {
   const GetVerifiedScreen({Key? key}) : super(key: key);
@@ -17,6 +19,8 @@ class _GetVerifiedScreenState extends State<GetVerifiedScreen> {
   final _ninController = TextEditingController();
   final _bvnController = TextEditingController();
   String? _selectedCategory;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   final List<String> _categories = [
     'Retail',
@@ -36,10 +40,58 @@ class _GetVerifiedScreenState extends State<GetVerifiedScreen> {
     super.dispose();
   }
 
-  void _handleSubmit() {
-    if (_formKey.currentState!.validate() && _selectedCategory != null) {
-      // TODO: Implement verification submission
-      Navigator.pop(context);
+  Future<void> _handleSubmit() async {
+    if (!_formKey.currentState!.validate() || _selectedCategory == null) {
+      if (_selectedCategory == null) {
+        setState(() {
+          _errorMessage = 'Please select a business category';
+        });
+      }
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final provider = context.read<AuthProvider>();
+      final user = provider.firebaseUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Submit verification details
+      await provider.updateUserProfile({
+        'businessName': _businessNameController.text.trim(),
+        'businessAddress': _businessAddressController.text.trim(),
+        'businessCategory': _selectedCategory,
+        'nin': _ninController.text.trim(),
+        'bvn': _bvnController.text.trim(),
+        'verificationStatus': 'pending',
+        'verificationSubmittedAt': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verification submitted successfully. We will review your application.'),
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to submit verification: ${e.toString()}';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -174,10 +226,21 @@ class _GetVerifiedScreenState extends State<GetVerifiedScreen> {
                     return null;
                   },
                 ),
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    _errorMessage!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 32),
                 CustomButton(
                   text: 'Submit',
-                  onPressed: _handleSubmit,
+                  onPressed: _isLoading ? null : _handleSubmit,
+                  isLoading: _isLoading,
                 ),
               ],
             ),

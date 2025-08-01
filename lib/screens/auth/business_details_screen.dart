@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../components/custom_button.dart';
 import '../../components/custom_text_field.dart';
 import '../../theme/colors.dart';
+import '../../providers/auth_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BusinessDetailsScreen extends StatefulWidget {
   const BusinessDetailsScreen({Key? key}) : super(key: key);
@@ -16,6 +19,8 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
   final _businessAddressController = TextEditingController();
   final _businessDescriptionController = TextEditingController();
   String? _selectedCategory;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   final List<String> _categories = [
     'Retail',
@@ -34,10 +39,66 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
     super.dispose();
   }
 
-  void _handleSubmit() {
-    if (_formKey.currentState!.validate() && _selectedCategory != null) {
-      // TODO: Implement business details submission logic
-      Navigator.pushNamed(context, '/otp-verification', arguments: ''); // You'll need to pass phone number here
+  Future<void> _handleSubmit() async {
+    if (!_formKey.currentState!.validate() || _selectedCategory == null) {
+      if (_selectedCategory == null) {
+        setState(() {
+          _errorMessage = 'Please select a business category';
+        });
+      }
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final provider = context.read<AuthProvider>();
+      
+      // Update the business details in Firestore
+      await provider.updateUserProfile({
+        'businessName': _businessNameController.text.trim(),
+        'businessAddress': _businessAddressController.text.trim(),
+        'businessDescription': _businessDescriptionController.text.trim(),
+        'businessCategory': _selectedCategory,
+        'userType': 'seller',
+        'isVerified': false,
+      });
+
+      // Start phone verification process
+      final user = provider.firebaseUser;
+      if (user != null) {
+        await provider.verifyPhoneNumber(
+          phoneNumber: user.phoneNumber ?? '',
+        );
+
+        if (mounted) {
+          Navigator.pushNamed(
+            context, 
+            '/otp-verification',
+            arguments: {
+              'phoneNumber': user.phoneNumber ?? '',
+              'verificationId': provider.verificationId!,
+            },
+          );
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? 'Failed to update business details';
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An unexpected error occurred. Please try again.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -154,10 +215,21 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                       return null;
                     },
                   ),
+                  if (_errorMessage != null) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      _errorMessage!,
+                      style: const TextStyle(
+                        color: AppColors.error,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 24),
                   CustomButton(
                     text: 'Create Account',
-                    onPressed: _handleSubmit,
+                    onPressed: _isLoading ? null : _handleSubmit,
+                    isLoading: _isLoading,
                   ),
                 ],
               ),

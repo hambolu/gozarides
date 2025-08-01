@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../theme/colors.dart';
 import '../../../screens/home/tabs/search_tab.dart';
 import '../../../screens/home/tabs/message_tab.dart';
 import '../../../screens/home/tabs/order_tab.dart';
 import '../../../screens/notifications/notification_page.dart';
+import '../../../screens/wallet/add_funds_screen.dart';
+import '../../../services/auth_bloc.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({Key? key}) : super(key: key);
@@ -27,13 +30,15 @@ class HomeTab extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Hello Joseph!',
-                      style: TextStyle(
-                        color: AppColors.text,
-                        fontSize: 18,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
+                    Consumer<AuthBloc>(
+                      builder: (context, authBloc, _) => Text(
+                        'Hello ${authBloc.currentUser?.name ?? ""}!',
+                        style: TextStyle(
+                          color: AppColors.text,
+                          fontSize: 18,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                     Stack(
@@ -134,43 +139,58 @@ class HomeTab extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 7),
-                          Text(
-                            '₦10,000.00',
-                            style: TextStyle(
-                              color: AppColors.buttonText,
-                              fontSize: 26,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w800,
-                            ),
+                          Consumer<AuthBloc>(
+                            builder: (context, authBloc, _) {
+                              final balance = authBloc.currentUser?.wallet?['balance'] ?? 0;
+                              return Text(
+                                '₦${balance.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  color: AppColors.buttonText,
+                                  fontSize: 26,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
-                      Container(
-                        width: 98,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        decoration: ShapeDecoration(
-                          color: AppColors.surface,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.add,
-                              color: AppColors.primary,
-                              size: 24,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AddFundsScreen(),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Add Funds',
-                              style: TextStyle(
+                          );
+                        },
+                        child: Container(
+                          width: 98,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          decoration: ShapeDecoration(
+                            color: AppColors.surface,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.add,
                                 color: AppColors.primary,
-                                fontSize: 12,
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w500,
+                                size: 24,
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 4),
+                              Text(
+                                'Add Funds',
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 12,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -222,6 +242,11 @@ class HomeTab extends StatelessWidget {
           case 'View My Orders':
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => const OrderTab(),
+            ));
+            break;
+          case 'Add Funds':
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => const AddFundsScreen(),
             ));
             break;
         }

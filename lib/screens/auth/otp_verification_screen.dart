@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:provider/provider.dart';
 import '../../components/custom_button.dart';
 import '../../theme/colors.dart';
+import '../../providers/auth_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
+  final String verificationId;
 
-  const OtpVerificationScreen({Key? key, required this.phoneNumber}) : super(key: key);
+  const OtpVerificationScreen({
+    Key? key, 
+    required this.phoneNumber,
+    required this.verificationId,
+  }) : super(key: key);
 
   @override
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
@@ -15,7 +23,9 @@ class OtpVerificationScreen extends StatefulWidget {
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final _otpController = TextEditingController();
   bool _isResendActive = false;
+  bool _isLoading = false;
   int _resendTimer = 30;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -38,19 +48,78 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     });
   }
 
-  void _handleVerification() {
-    // TODO: Implement OTP verification logic
-    Navigator.pushReplacementNamed(context, '/home');
+  Future<void> _handleVerification() async {
+    if (_otpController.text.length != 6) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Use Firebase Auth directly for phone verification
+      final provider = context.read<AuthProvider>();
+      await provider.verifyPhoneNumber(
+        verificationId: widget.verificationId,
+        smsCode: _otpController.text,
+      );
+      
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? 'Verification failed';
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An unexpected error occurred. Please try again.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
-  void _handleResendCode() {
-    if (_isResendActive) {
-      setState(() {
-        _isResendActive = false;
-        _resendTimer = 30;
-      });
+  Future<void> _handleResendCode() async {
+    if (!_isResendActive) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _isResendActive = false;
+      _resendTimer = 30;
+    });
+
+    try {
+      // Use Firebase Auth to resend verification code
+      final provider = context.read<AuthProvider>();
+      await provider.verifyPhoneNumber(
+        phoneNumber: widget.phoneNumber,
+        resend: true,
+      );
       _startResendTimer();
-      // TODO: Implement resend OTP logic
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? 'Failed to resend code';
+        _isResendActive = true;
+        _resendTimer = 0;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An unexpected error occurred. Please try again.';
+        _isResendActive = true;
+        _resendTimer = 0;
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -62,6 +131,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = _isLoading || context.watch<AuthBloc>().isLoading;
+    
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -71,7 +142,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
+                onPressed: isLoading ? null : () => Navigator.pop(context),
               ),
               const SizedBox(height: 24),
               const Text(
@@ -90,11 +161,22 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   fontSize: 16,
                 ),
               ),
+              if (_errorMessage != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  _errorMessage!,
+                  style: const TextStyle(
+                    color: AppColors.error,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
               const SizedBox(height: 32),
               PinCodeTextField(
                 appContext: context,
                 length: 6,
                 controller: _otpController,
+                enabled: !isLoading,
                 pinTheme: PinTheme(
                   shape: PinCodeFieldShape.box,
                   borderRadius: BorderRadius.circular(8),
@@ -109,12 +191,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 ),
                 keyboardType: TextInputType.number,
                 onCompleted: (_) => _handleVerification(),
-                onChanged: (_) {},
+                onChanged: (_) {
+                  if (_errorMessage != null) {
+                    setState(() {
+                      _errorMessage = null;
+                    });
+                  }
+                },
               ),
               const SizedBox(height: 32),
               CustomButton(
                 text: 'Verify',
-                onPressed: _handleVerification,
+                onPressed: isLoading ? null : _handleVerification,
+                isLoading: isLoading,
               ),
               const SizedBox(height: 24),
               Row(
@@ -125,11 +214,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     style: TextStyle(color: AppColors.textSecondary),
                   ),
                   TextButton(
-                    onPressed: _handleResendCode,
+                    onPressed: isLoading ? null : _handleResendCode,
                     child: Text(
                       _isResendActive ? 'Resend' : 'Wait $_resendTimer seconds',
                       style: TextStyle(
-                        color: _isResendActive ? AppColors.primary : AppColors.textSecondary,
+                        color: isLoading || !_isResendActive ? AppColors.textSecondary : AppColors.primary,
                       ),
                     ),
                   ),

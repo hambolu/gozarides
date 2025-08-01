@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import '../../../models/chat_model.dart';
+import '../../../services/chat_service.dart';
 import '../../../theme/colors.dart';
+import '../../../providers/auth_provider.dart';
+import '../../chat/chat_detail_screen.dart';
 
 class MessageTab extends StatelessWidget {
   const MessageTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = context.watch<AuthProvider>().firebaseUser;
+    if (currentUser == null) return const Center(child: CircularProgressIndicator());
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -22,15 +31,71 @@ class MessageTab extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.builder(
-        itemCount: mockChats.length,
-        padding: const EdgeInsets.all(16),
-        itemBuilder: (context, index) {
-          final chat = mockChats[index];
-          return _ChatListItem(chat: chat);
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: ChatService().getChats(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final chats = snapshot.data!;
+          if (chats.isEmpty) {
+            return const Center(
+              child: Text(
+                'No messages yet',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            );
+          }
+
+          return FutureBuilder<List<ChatModel>>(
+            future: _getChatModels(chats),
+            builder: (context, chatModelsSnapshot) {
+              if (chatModelsSnapshot.hasError) {
+                return Center(child: Text('Error: ${chatModelsSnapshot.error}'));
+              }
+
+              if (!chatModelsSnapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final chatModels = chatModelsSnapshot.data!;
+              return ListView.builder(
+                itemCount: chatModels.length,
+                padding: const EdgeInsets.all(16),
+                itemBuilder: (context, index) {
+                  final chat = chatModels[index];
+                  return _ChatListItem(chat: chat);
+                },
+              );
+            },
+          );
         },
       ),
     );
+  }
+
+  Future<List<ChatModel>> _getChatModels(List<Map<String, dynamic>> chats) async {
+    final firestore = FirebaseFirestore.instance;
+    List<ChatModel> chatModels = [];
+
+    for (var chat in chats) {
+      try {
+        final userDoc = await firestore.collection('users').doc(chat['otherUserId']).get();
+        if (userDoc.exists) {
+          chatModels.add(ChatModel.fromMap(chat, userDoc.data()!));
+        }
+      } catch (e) {
+        print('Error fetching user data for chat: ${e.toString()}');
+      }
+    }
+
+    chatModels.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+    return chatModels;
   }
 }
 
@@ -97,7 +162,16 @@ class _ChatListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // TODO: Navigate to chat detail screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatDetailScreen(
+              chatId: chat.chatId,
+              otherUserId: chat.otherUserId,
+              businessName: chat.businessName,
+            ),
+          ),
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),

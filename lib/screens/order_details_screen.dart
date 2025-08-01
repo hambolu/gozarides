@@ -10,19 +10,55 @@ class OrderDetailsScreen extends StatelessWidget {
     required this.orderId,
   }) : super(key: key);
 
+  Future<Map<String, dynamic>> _getOrderDetails(String orderId) async {
+    final orderDoc = await FirebaseFirestore.instance
+        .collection('orders')
+        .doc(orderId)
+        .get();
+        
+    if (!orderDoc.exists) {
+      throw Exception('Order not found');
+    }
+    
+    return orderDoc.data() as Map<String, dynamic>;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Mock order data - In production, this would be fetched using the orderId
-    final order = {
-      'id': orderId,
-      'productDetails': 'iPhone 13 Pro Max',
-      'amount': '₦950,000',
-      'status': 'Delivered',
-      'date': '10 May, 2025',
-      'sellerName': 'John\'s Electronics',
-      'deliveryAddress': '123 Main Street, Lagos',
-      'paymentMethod': 'Wallet Balance',
-    };
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _getOrderDetails(orderId),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Order Details'),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            body: Center(
+              child: Text('Error: ${snapshot.error}'),
+            ),
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Order Details'),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            body: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        final order = snapshot.data!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -171,7 +207,27 @@ class OrderDetailsScreen extends StatelessWidget {
                 ],
               ),
               TextButton(
-                onPressed: onMessageSeller,
+                onPressed: () async {
+                  try {
+                    final chatId = await ChatService().createOrGetChat(order['sellerId']!);
+                    if (mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatDetailScreen(
+                            chatId: chatId,
+                            otherUserId: order['sellerId']!,
+                            businessName: order['sellerName']!,
+                          ),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: ${e.toString()}')),
+                    );
+                  }
+                },
                 child: Row(
                   children: const [
                     Icon(Icons.message, size: 16, color: AppColors.primary),

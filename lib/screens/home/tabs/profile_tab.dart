@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../theme/colors.dart';
 import '../../../screens/wallet/transaction_history_screen.dart';
 import '../../../screens/profile/personal_data_screen.dart';
@@ -9,35 +10,21 @@ import '../../../screens/profile/help_center_screen.dart';
 import '../../../screens/wallet/wallet_screen.dart';
 import '../../../screens/wallet/add_funds_screen.dart';
 import '../../../models/user_model.dart';
+import '../../../services/auth_bloc.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({Key? key}) : super(key: key);
 
-  // TODO: Replace with actual user data from state management
-  UserModel get _mockUser => const UserModel(
-    id: '24576353553',
-    name: 'Johnny John',
-    email: 'johnny@email.com',
-    phone: '090213895748',
-    userType: UserType.seller,
-    verificationStatus: VerificationStatus.unverified,
-    businessName: 'Johnny John Accessories'
-  );
+  // Profile data comes from AuthBloc
 
   Widget _buildVerificationCard(BuildContext context, UserModel user) {
     if (!user.isSeller) return const SizedBox.shrink();
 
-    if (user.isVerified) {
+    if (user.emailVerifiedAt != null) {
       return _buildCard(
         title: 'Verified Seller',
         description: 'Your account has been successfully verified.',
         icon: Icons.verified_user,
-      );
-    } else if (user.isVerificationPending) {
-      return _buildCard(
-        title: 'Verification Pending',
-        description: 'Your verification request is being processed.',
-        icon: Icons.pending_outlined,
       );
     } else {
       return GestureDetector(
@@ -56,9 +43,12 @@ class ProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = _mockUser;
-
-    return Scaffold(
+    return Consumer<AuthBloc>(
+      builder: (context, authBloc, _) {
+        final user = authBloc.currentUser;
+        if (user == null) return const Center(child: CircularProgressIndicator());
+        
+        return Scaffold(
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Column(
@@ -141,7 +131,7 @@ class ProfileTab extends StatelessWidget {
                               fontWeight: FontWeight.w400,
                             ),
                           ),
-                          if (user.isSeller && user.isVerified) ...[
+                          if (user.isSeller && user.emailVerifiedAt != null) ...[
                             const SizedBox(height: 12),
                             Row(
                               children: [
@@ -334,6 +324,8 @@ class ProfileTab extends StatelessWidget {
           ],
         ),
       ),
+    );
+      },
     );
   }
 
