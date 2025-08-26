@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/wallet_provider.dart';
 import '../../components/custom_button.dart';
 import '../../services/payment_service.dart';
 
-enum PaymentMethod { card, bank_transfer }
+enum PaymentMethod { debitCard, bankTransfer }
 
 class AddFundsScreen extends StatefulWidget {
   const AddFundsScreen({Key? key}) : super(key: key);
@@ -13,7 +15,7 @@ class AddFundsScreen extends StatefulWidget {
 }
 
 class _AddFundsScreenState extends State<AddFundsScreen> {
-  PaymentMethod _selectedPaymentMethod = PaymentMethod.card;
+  PaymentMethod _selectedPaymentMethod = PaymentMethod.debitCard;
   final TextEditingController _amountController = TextEditingController(text: '15,000.00');
 
   void _processPayment() async {
@@ -22,6 +24,7 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
       final amount = double.parse(_amountController.text.replaceAll(',', ''));
       
       await paymentService.initializePayment(
+        context: context,
         amount: amount,
         paymentMethod: _selectedPaymentMethod.toString().split('.').last,
         paymentDetails: {}, // Add any additional payment details here

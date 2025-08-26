@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../components/custom_button.dart';
 import '../../components/custom_text_field.dart';
 import '../../theme/colors.dart';
+import '../../providers/auth_provider.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -13,6 +16,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  String _errorMessage = '';
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -20,10 +25,44 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement forgot password logic
-      Navigator.pushNamed(context, '/reset-password', arguments: _emailController.text);
+      setState(() {
+        _isLoading = true;
+        _errorMessage = '';
+      });
+
+      try {
+        // Implement forgot password logic with auth provider
+        await FirebaseAuth.instance.sendPasswordResetEmail(
+          email: _emailController.text.trim(),
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Password reset link sent to your email'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          _errorMessage = e.code == 'no-internet' 
+            ? 'Please check your internet connection and try again'
+            : (e.message ?? 'Failed to send reset email');
+        });
+      } catch (e) {
+        setState(() {
+          _errorMessage = 'An unexpected error occurred. Please try again.';
+        });
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
     }
   }
 
@@ -78,10 +117,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 16),
+                    if (_errorMessage.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Text(
+                          _errorMessage,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
                     CustomButton(
                       text: 'Send Reset Link',
-                      onPressed: _handleSubmit,
+                      onPressed: _isLoading ? null : _handleSubmit,
+                      isLoading: _isLoading,
                     ),
                     const SizedBox(height: 24),
                     Row(

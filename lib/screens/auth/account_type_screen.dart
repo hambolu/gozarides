@@ -22,12 +22,23 @@ class _AccountTypeScreenState extends State<AccountTypeScreen> {
   void _handleContinue() {
     if (selectedType != null) {
       if (selectedType == 'seller') {
-        Navigator.push(
+        // Navigate to signup screen with seller type
+        Navigator.pushNamed(
           context,
-          MaterialPageRoute(builder: (context) => const BusinessDetailsScreen()),
+          '/signup',
+          arguments: {
+            'accountType': 'seller',
+          },
         );
       } else {
-        Navigator.pushNamed(context, '/signup', arguments: selectedType);
+        // For regular users
+        Navigator.pushNamed(
+          context,
+          '/signup',
+          arguments: {
+            'accountType': 'buyer',
+          },
+        );
       }
     }
   }

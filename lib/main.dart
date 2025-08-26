@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/wallet_provider.dart';
 import 'providers/order_provider.dart';
@@ -17,12 +19,24 @@ import 'screens/auth/login_screen.dart';
 import 'screens/auth/forgot_password_screen.dart';
 import 'screens/auth/reset_password_screen.dart';
 import 'screens/auth/otp_verification_screen.dart';
-import 'screens/order_details_screen.dart';
+import 'screens/order/order_details_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  
+  // Initialize Firebase with the correct options
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
+  // Initialize Firebase App Check
+  await FirebaseAppCheck.instance.activate(
+    // Use debug provider for development, switch to playIntegrity for production
+    androidProvider: AndroidProvider.debug,
+    // appleProvider is only needed if you're building for iOS
+    appleProvider: AppleProvider.deviceCheck,
+  );
+  
   // Request notification permissions
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   NotificationSettings settings = await messaging.requestPermission(
@@ -64,9 +78,12 @@ class MyApp extends StatelessWidget {
           '/splash': (context) => const SplashScreen(),
           '/onboarding': (context) => const OnboardingScreen(),
           '/account-type': (context) => const AccountTypeScreen(),
-          '/signup': (context) => SignupScreen(
-                accountType: (ModalRoute.of(context)?.settings.arguments as String?) ?? 'rider',
-              ),
+          '/signup': (context) {
+            final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+            return SignupScreen(
+              accountType: (args?['accountType'] as String?) ?? 'buyer',
+            );
+          },
           '/login': (context) => const LoginScreen(),
           '/forgot-password': (context) => const ForgotPasswordScreen(),
           '/reset-password': (context) => ResetPasswordScreen(

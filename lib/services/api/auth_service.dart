@@ -1,5 +1,6 @@
 import 'api_client.dart';
 import '../../models/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 
 class AuthService {
   final ApiClient _apiClient;
@@ -86,25 +87,29 @@ class AuthService {
     final response = await _apiClient.get('user');
     final userData = response['data']['user'];
     
+    DateTime? parseTimestamp(dynamic value) {
+      if (value == null) return null;
+      if (value is Timestamp) return value.toDate();
+      if (value is Map) return (value as Timestamp).toDate();
+      return null;
+    }
+    
     return UserModel(
-      id: userData['id'],
-      name: userData['name'],
-      email: userData['email'],
-      phone: userData['phone'],
-      type: userData['type'],
-      profilePhotoUrl: userData['profile_photo_url'],
-      emailVerifiedAt: userData['email_verified_at'] != null 
-        ? DateTime.parse(userData['email_verified_at'])
-        : null,
-      isAdmin: userData['is_admin'],
-      isDriver: userData['is_driver'],
-      isActive: userData['is_active'],
-      driverVerifiedAt: userData['driver_verified_at'] != null 
-        ? DateTime.parse(userData['driver_verified_at'])
-        : null,
+      uid: userData['uid'] ?? '',
+      name: userData['name'] ?? '',
+      email: userData['email'] ?? '',
+      phone: userData['phone'] ?? '',
+      userType: userData['userType'] ?? '',
+      isPhoneVerified: userData['isPhoneVerified'] ?? false,
+      isEmailVerified: userData['isEmailVerified'] ?? false,
+      isActive: userData['isActive'] ?? true,
+      profilePicture: userData['profilePicture'] ?? '',
+      profileCompleted: userData['profileCompleted'] ?? false,
+      rating: (userData['rating'] as num?)?.toDouble() ?? 0.0,
+      totalRides: (userData['totalRides'] as num?)?.toInt() ?? 0,
       wallet: userData['wallet'],
-      createdAt: DateTime.parse(userData['created_at']),
-      updatedAt: DateTime.parse(userData['updated_at']),
+      createdAt: parseTimestamp(userData['createdAt']) ?? DateTime.now(),
+      updatedAt: parseTimestamp(userData['updatedAt']) ?? DateTime.now(),
     );
   }
 }

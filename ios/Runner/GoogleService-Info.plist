@@ -2,18 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>780837622853-3dvof0r5ci9vras9nf6gjp2e5uvuhqtt.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.780837622853-3dvof0r5ci9vras9nf6gjp2e5uvuhqtt</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBXQTJJMxph0uPYTOu2uqaODGdEO-WDlhk</string>
+	<string>AIzaSyCTBXzlTYJxUa_BljVjjenhHTQT4IxvmRk</string>
 	<key>GCM_SENDER_ID</key>
-	<string>1032430561578</string>
+	<string>780837622853</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.gozarides</string>
 	<key>PROJECT_ID</key>
-	<string>gozarides-5e916</string>
+	<string>gozarides-app</string>
 	<key>STORAGE_BUCKET</key>
-	<string>gozarides-5e916.firebasestorage.app</string>
+	<string>gozarides-app.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1032430561578:ios:9be0fc9eca61ceaed21653</string>
+	<string>1:780837622853:ios:2128041b2dae6a007bff2c</string>
 </dict>
 </plist>

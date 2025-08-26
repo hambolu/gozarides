@@ -20,7 +20,7 @@ class ProfileTab extends StatelessWidget {
   Widget _buildVerificationCard(BuildContext context, UserModel user) {
     if (!user.isSeller) return const SizedBox.shrink();
 
-    if (user.emailVerifiedAt != null) {
+    if (user.isEmailVerified) {
       return _buildCard(
         title: 'Verified Seller',
         description: 'Your account has been successfully verified.',
@@ -123,7 +123,7 @@ class ProfileTab extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           if (user.isSeller) Text(
-                            'Seller ID: ${user.id}',
+                            'Seller ID: ${user.uid}',
                             style: const TextStyle(
                               color: Color(0xFF444444),
                               fontSize: 14,
@@ -131,7 +131,7 @@ class ProfileTab extends StatelessWidget {
                               fontWeight: FontWeight.w400,
                             ),
                           ),
-                          if (user.isSeller && user.emailVerifiedAt != null) ...[
+                          if (user.isSeller && user.isEmailVerified) ...[
                             const SizedBox(height: 12),
                             Row(
                               children: [

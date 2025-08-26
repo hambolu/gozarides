@@ -3,11 +3,22 @@ import 'package:provider/provider.dart';
 import '../../components/custom_button.dart';
 import '../../components/custom_text_field.dart';
 import '../../theme/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import '../../providers/auth_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class BusinessDetailsScreen extends StatefulWidget {
-  const BusinessDetailsScreen({Key? key}) : super(key: key);
+  final String email;
+  final String password;
+  final String name;
+  final String phone;
+
+  const BusinessDetailsScreen({
+    Key? key,
+    required this.email,
+    required this.password,
+    required this.name,
+    required this.phone,
+  }) : super(key: key);
 
   @override
   State<BusinessDetailsScreen> createState() => _BusinessDetailsScreenState();
@@ -57,37 +68,47 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
     try {
       final provider = context.read<AuthProvider>();
       
-      // Update the business details in Firestore
-      await provider.updateUserProfile({
-        'businessName': _businessNameController.text.trim(),
-        'businessAddress': _businessAddressController.text.trim(),
-        'businessDescription': _businessDescriptionController.text.trim(),
-        'businessCategory': _selectedCategory,
-        'userType': 'seller',
-        'isVerified': false,
-      });
+      // Create seller account
+      await provider.signUpAsSeller(
+        email: widget.email, // Add these parameters to the widget
+        password: widget.password,
+        name: widget.name,
+        phone: widget.phone,
+        businessName: _businessNameController.text.trim(),
+        businessAddress: _businessAddressController.text.trim(),
+        businessCategory: _selectedCategory!,
+        businessDescription: _businessDescriptionController.text.trim(),
+      );
 
-      // Start phone verification process
-      final user = provider.firebaseUser;
-      if (user != null) {
-        await provider.verifyPhoneNumber(
-          phoneNumber: user.phoneNumber ?? '',
-        );
-
-        if (mounted) {
-          Navigator.pushNamed(
-            context, 
-            '/otp-verification',
-            arguments: {
-              'phoneNumber': user.phoneNumber ?? '',
-              'verificationId': provider.verificationId!,
+      // After successful registration, start phone verification process
+      if (mounted) {
+        final user = provider.firebaseUser;
+        if (user != null) {
+          await provider.verifyPhoneNumber(
+            phoneNumber: widget.phone,
+            onError: (error) {
+              setState(() {
+                _errorMessage = error;
+              });
+            },
+            onCodeSent: (String verificationId) {
+              Navigator.pushNamed(
+                context,
+                '/otp-verification',
+                arguments: {
+                  'phoneNumber': widget.phone,
+                  'verificationId': verificationId,
+                },
+              );
             },
           );
         }
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
-        _errorMessage = e.message ?? 'Failed to update business details';
+        _errorMessage = e.code == 'no-internet'
+          ? 'Please check your internet connection and try again'
+          : (e.message ?? 'Failed to create seller account');
       });
     } catch (e) {
       setState(() {

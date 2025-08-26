@@ -7,14 +7,25 @@ import 'tabs/message_tab.dart';
 import 'tabs/profile_tab.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final int initialTab;
+  
+  const HomeScreen({
+    Key? key,
+    this.initialTab = 0,
+  }) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialTab;
+  }
 
   final List<Widget> _tabs = [
     const HomeTab(),

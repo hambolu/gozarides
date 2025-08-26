@@ -46,12 +46,16 @@ dependencies:
   webview_flutter: ^4.13.0
 
   # Firebase
-  firebase_core: ^2.24.2
-  firebase_auth: ^4.15.3
-  cloud_firestore: ^4.13.6
-  firebase_storage: ^11.5.6
-  firebase_messaging: ^14.7.9
-  firebase_analytics: ^10.7.4
+  firebase_core: ^2.32.0
+  firebase_auth: ^4.16.0
+  cloud_firestore: ^4.17.5
+  firebase_storage: ^11.6.5
+  firebase_messaging: ^14.7.10
+  firebase_database: ^10.4.0
+  google_sign_in: ^6.2.1
+  firebase_analytics: ^10.8.0
+  connectivity_plus: ^6.1.4
+  firebase_app_check: ^0.2.1+14 # Add this line
 
 dev_dependencies:
   flutter_test:

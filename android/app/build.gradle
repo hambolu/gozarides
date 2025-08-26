@@ -28,8 +28,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace = "com.example.gozarides"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -41,10 +40,11 @@ android {
         applicationId = "com.example.gozarides"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdk = flutter.minSdkVersion
+        minSdk = 23 // Required for Play Integrity
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -54,6 +54,16 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    dependencies {
+        implementation platform('com.google.firebase:firebase-bom:32.7.1')
+        implementation 'com.google.firebase:firebase-analytics'
+        implementation 'com.android.support:multidex:1.0.3'
+    }
 }
 
 flutter {
@@ -61,6 +71,15 @@ flutter {
 }
 
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:32.7.0')
-    implementation 'com.google.firebase:firebase-analytics'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+
+// Fix task dependencies
+tasks.whenTaskAdded { task ->
+    if (task.name == 'processDebugGoogleServices') {
+        task.finalizedBy ':app:mapDebugSourceSetPaths'
+    }
+    if (task.name == 'mergeDebugResources') {
+        task.dependsOn ':app:processDebugGoogleServices'
+    }
 }

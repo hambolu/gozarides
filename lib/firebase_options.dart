@@ -41,46 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBr7NjQE9bKs-bOiiOrVCvkUcb7kUFy8D0',
-    appId: '1:1032430561578:web:c4f4a1e3b75fd0b8d21653',
-    messagingSenderId: '1032430561578',
-    projectId: 'gozarides-5e916',
-    authDomain: 'gozarides-5e916.firebaseapp.com',
-    storageBucket: 'gozarides-5e916.firebasestorage.app',
+    apiKey: 'AIzaSyDKuYLz66z_RbzkSKzibJ2SiixZsdQmu-E',
+    appId: '1:780837622853:web:cfd0cff4906bf87e7bff2c',
+    messagingSenderId: '780837622853',
+    projectId: 'gozarides-app',
+    authDomain: 'gozarides-app.firebaseapp.com',
+    storageBucket: 'gozarides-app.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD1KczPWp3L9oPpsZb62ndBkleFYM46rAY',
-    appId: '1:1032430561578:android:c3c6716920a6ff0ed21653',
-    messagingSenderId: '1032430561578',
-    projectId: 'gozarides-5e916',
-    storageBucket: 'gozarides-5e916.firebasestorage.app',
+    apiKey: 'AIzaSyAXGegO-TN1cdUpBVzkoqLl7JT_olILr-U',
+    appId: '1:780837622853:android:84f00327ee4a2a927bff2c',
+    messagingSenderId: '780837622853',
+    projectId: 'gozarides-app',
+    storageBucket: 'gozarides-app.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBXQTJJMxph0uPYTOu2uqaODGdEO-WDlhk',
-    appId: '1:1032430561578:ios:9be0fc9eca61ceaed21653',
-    messagingSenderId: '1032430561578',
-    projectId: 'gozarides-5e916',
-    storageBucket: 'gozarides-5e916.firebasestorage.app',
+    apiKey: 'AIzaSyCTBXzlTYJxUa_BljVjjenhHTQT4IxvmRk',
+    appId: '1:780837622853:ios:2128041b2dae6a007bff2c',
+    messagingSenderId: '780837622853',
+    projectId: 'gozarides-app',
+    storageBucket: 'gozarides-app.firebasestorage.app',
+    iosClientId: '780837622853-3dvof0r5ci9vras9nf6gjp2e5uvuhqtt.apps.googleusercontent.com',
     iosBundleId: 'com.example.gozarides',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBXQTJJMxph0uPYTOu2uqaODGdEO-WDlhk',
-    appId: '1:1032430561578:ios:9be0fc9eca61ceaed21653',
-    messagingSenderId: '1032430561578',
-    projectId: 'gozarides-5e916',
-    storageBucket: 'gozarides-5e916.firebasestorage.app',
+    apiKey: 'AIzaSyCTBXzlTYJxUa_BljVjjenhHTQT4IxvmRk',
+    appId: '1:780837622853:ios:2128041b2dae6a007bff2c',
+    messagingSenderId: '780837622853',
+    projectId: 'gozarides-app',
+    storageBucket: 'gozarides-app.firebasestorage.app',
+    iosClientId: '780837622853-3dvof0r5ci9vras9nf6gjp2e5uvuhqtt.apps.googleusercontent.com',
     iosBundleId: 'com.example.gozarides',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBr7NjQE9bKs-bOiiOrVCvkUcb7kUFy8D0',
-    appId: '1:1032430561578:web:05f6eb600f12cafdd21653',
-    messagingSenderId: '1032430561578',
-    projectId: 'gozarides-5e916',
-    authDomain: 'gozarides-5e916.firebaseapp.com',
-    storageBucket: 'gozarides-5e916.firebasestorage.app',
+    apiKey: 'AIzaSyDKuYLz66z_RbzkSKzibJ2SiixZsdQmu-E',
+    appId: '1:780837622853:web:4db0ca1092b304797bff2c',
+    messagingSenderId: '780837622853',
+    projectId: 'gozarides-app',
+    authDomain: 'gozarides-app.firebaseapp.com',
+    storageBucket: 'gozarides-app.firebasestorage.app',
   );
+
 }

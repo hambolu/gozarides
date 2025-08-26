@@ -17,7 +17,7 @@ class PaymentService {
     try {
       final response = await _apiService.post(
         '/wallet/topup',
-        data: {
+        {
           'amount': amount,
           'payment_method': paymentMethod,
           'payment_details': paymentDetails ?? {},

@@ -12,7 +12,12 @@
           "package_name": "com.example.gozarides"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "780837622853-jmfe8t5go5c02sj3jluutfvv2gt1rdi4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAXGegO-TN1cdUpBVzkoqLl7JT_olILr-U"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "780837622853-jmfe8t5go5c02sj3jluutfvv2gt1rdi4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "780837622853-3dvof0r5ci9vras9nf6gjp2e5uvuhqtt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.gozarides"
+              }
+            }
+          ]
         }
       }
     }

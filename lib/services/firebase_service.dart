@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -21,23 +22,70 @@ class FirebaseService {
     String userType, // 'driver' or 'passenger'
   ) async {
     try {
+      print('\n==========================================');
+      print('📝 FIREBASE AUTH - SIGNUP ATTEMPT');
+      print('==========================================');
+      print('Email: $email');
+      print('Name: $name');
+      print('Phone: $phone');
+      print('User Type: $userType');
+      print('==========================================\n');
+
       // Create user with email and password
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential;
+      try {
+        userCredential = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        print('✅ User account created successfully');
+        print('User ID: ${userCredential.user?.uid}');
+      } on FirebaseAuthException catch (e) {
+        print('❌ Firebase Auth Error: ${e.code}');
+        switch (e.code) {
+          case 'email-already-in-use':
+            throw 'This email address is already registered. Please sign in or use a different email.';
+          case 'invalid-email':
+            throw 'The email address is not valid. Please check and try again.';
+          case 'operation-not-allowed':
+            throw 'Email/password accounts are not enabled. Please contact support.';
+          case 'weak-password':
+            throw 'The password is too weak. Please use a stronger password.';
+          default:
+            throw e.message ?? 'Failed to create account. Please try again.';
+        }
+      }
 
       // Create user profile in Firestore
-      await _createUserProfile(
-        userCredential.user!.uid,
-        name,
-        email,
-        phone,
-        userType,
-      );
+      try {
+        await _createUserProfile(
+          userCredential.user!.uid,
+          name,
+          email,
+          phone,
+          userType,
+        );
+        print('✅ User profile created in Firestore');
+      } catch (firestoreError) {
+        print('❌ ERROR creating user profile in Firestore:');
+        print(firestoreError);
+        // Delete the auth user since profile creation failed
+        await userCredential.user?.delete();
+        if (firestoreError is FirebaseException) {
+          switch (firestoreError.code) {
+            case 'permission-denied':
+              throw 'Unable to create user profile due to permission issues. Please try again or contact support.';
+            default:
+              throw 'Failed to create user profile: ${firestoreError.message}. Please try again.';
+          }
+        }
+        throw 'Failed to create user profile. Please try again.';
+      }
 
       return userCredential;
     } catch (e) {
+      print('\n❌ ERROR during signup:');
+      print(e);
       rethrow;
     }
   }
@@ -222,6 +270,178 @@ class FirebaseService {
     }
   }
 
-  // Existing methods remain unchanged...
-  // ...existing code...
+  // Wallet Functions
+  Future<DocumentSnapshot> getWalletBalance(String uid) async {
+    try {
+      return await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('wallet')
+          .doc('balance')
+          .get();
+    } catch (e) {
+      throw Exception('Failed to get wallet balance: $e');
+    }
+  }
+
+  Stream<QuerySnapshot> getTransactions(String uid) {
+    return _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('wallet')
+        .doc('balance')
+        .collection('transactions')
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+  }
+
+  Future<void> addFunds(String uid, double amount) async {
+    try {
+      final walletRef = _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('wallet')
+          .doc('balance');
+      
+      await _firestore.runTransaction((transaction) async {
+        final wallet = await transaction.get(walletRef);
+        final currentBalance = (wallet.data()?['amount'] ?? 0.0) as double;
+        transaction.update(walletRef, {
+          'amount': currentBalance + amount,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        });
+      });
+
+      // Add transaction record
+      await addTransaction(uid, {
+        'type': 'credit',
+        'amount': amount,
+        'description': 'Added funds to wallet',
+        'status': 'completed'
+      });
+    } catch (e) {
+      throw Exception('Failed to add funds: $e');
+    }
+  }
+
+  Future<void> withdrawFunds(String uid, double amount, Map<String, String> bankDetails) async {
+    try {
+      final walletRef = _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('wallet')
+          .doc('balance');
+
+      await _firestore.runTransaction((transaction) async {
+        final wallet = await transaction.get(walletRef);
+        final currentBalance = (wallet.data()?['amount'] ?? 0.0) as double;
+        if (currentBalance < amount) {
+          throw Exception('Insufficient funds');
+        }
+        transaction.update(walletRef, {
+          'amount': currentBalance - amount,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        });
+      });
+
+      // Add transaction record
+      await addTransaction(uid, {
+        'type': 'debit',
+        'amount': amount,
+        'description': 'Withdrawal to bank account',
+        'bankDetails': bankDetails,
+        'status': 'processing'
+      });
+    } catch (e) {
+      throw Exception('Failed to withdraw funds: $e');
+    }
+  }
+
+  Future<void> addTransaction(String userId, Map<String, dynamic> transactionData) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('wallet')
+          .doc('balance')
+          .collection('transactions')
+          .add({
+            ...transactionData,
+            'timestamp': FieldValue.serverTimestamp(),
+          });
+    } catch (e) {
+      throw Exception('Failed to add transaction: $e');
+    }
+  }
+
+  Future<DocumentReference> createOrder(Map<String, dynamic> orderData) async {
+    try {
+      return await _firestore.collection('orders').add({
+        ...orderData,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to create order: $e');
+    }
+  }
+
+  Stream<QuerySnapshot> getUserOrders(String uid) {
+    return _firestore
+        .collection('orders')
+        .where('userId', isEqualTo: uid)
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+  }
+
+  Future<void> updateOrderStatus(String orderId, String status) async {
+    try {
+      await _firestore.collection('orders').doc(orderId).update({
+        'status': status,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to update order status: $e');
+    }
+  }
+
+  Future<void> cancelOrder(String orderId, String reason) async {
+    try {
+      await _firestore.collection('orders').doc(orderId).update({
+        'status': 'cancelled',
+        'cancelReason': reason,
+        'cancelledAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to cancel order: $e');
+    }
+  }
+
+  Stream<QuerySnapshot> getChats(String uid) {
+    return _firestore
+        .collection('chats')
+        .where('participants', arrayContains: uid)
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot> getChatMessages(String chatId) {
+    return _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+  }
+
+  Future<void> markChatAsRead(String chatId) async {
+    try {
+      await _firestore.collection('chats').doc(chatId).update({
+        'unread': false,
+        'lastReadAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to mark chat as read: $e');
+    }
+  }
 }

@@ -42,9 +42,9 @@ class ChatProvider with ChangeNotifier {
     });
   }
 
-  Future<void> sendMessage(String chatId, Map<String, dynamic> message) async {
+  Future<void> sendMessage(String chatId, String message, String senderId) async {
     try {
-      await _firebaseService.sendMessage(chatId, message);
+      await _firebaseService.sendMessage(chatId, senderId, message);
     } catch (e) {
       rethrow;
     }
