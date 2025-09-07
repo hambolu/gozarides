@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       try {
-        await context.read<AuthProvider>().signIn(
+        await context.read<AppAuthProvider>().signIn(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );

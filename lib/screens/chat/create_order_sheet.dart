@@ -44,7 +44,7 @@ class _CreateOrderSheetState extends State<CreateOrderSheet> {
     setState(() => _isLoading = true);
 
     try {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final auth = Provider.of<AppAuthProvider>(context, listen: false);
       final orderProvider = Provider.of<OrderProvider>(context, listen: false);
 
       final orderData = {

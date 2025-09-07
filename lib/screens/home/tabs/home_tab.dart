@@ -30,7 +30,7 @@ class HomeTab extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Consumer<AuthProvider>(
+                    Consumer<AppAuthProvider>(
                       builder: (context, auth, child) => Text(
                         'Hi, ${auth.user?.displayName ?? 'there'}!',
                         style: TextStyle(

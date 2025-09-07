@@ -42,7 +42,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     });
 
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final authProvider = Provider.of<AppAuthProvider>(context, listen: false);
       await authProvider.verifyOtp(
         verificationId: widget.verificationId,
         smsCode: _otpController.text,

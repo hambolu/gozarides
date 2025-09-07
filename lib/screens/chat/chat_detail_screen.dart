@@ -55,7 +55,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = context.read<AuthProvider>().firebaseUser;
+    final currentUser = context.read<AppAuthProvider>().firebaseUser;
     if (currentUser == null) return const Center(child: CircularProgressIndicator());
 
     return Scaffold(

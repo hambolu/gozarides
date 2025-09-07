@@ -29,7 +29,7 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
       }
 
       // Get the current user's ID from auth provider
-      final user = context.read<AuthProvider>().firebaseUser;
+      final user = context.read<AppAuthProvider>().firebaseUser;
       if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please log in to add funds')),
@@ -71,7 +71,7 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
       }
 
       // Get the current user's ID from auth provider
-      final user = context.read<AuthProvider>().firebaseUser;
+      final user = context.read<AppAuthProvider>().firebaseUser;
       if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please log in to add funds')),
@@ -79,11 +79,11 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
         return;
       }
 
-      // Create a pending transaction record
-      await context.read<WalletProvider>().recordPendingTransfer(
-        user.uid,
-        amount,
-      );
+      // // Create a pending transaction record
+      // await context.read<WalletProvider>().recordPendingTransfer(
+      //   user.uid,
+      //   amount,
+      // );
 
       // Show success message and navigate back
       if (mounted) {

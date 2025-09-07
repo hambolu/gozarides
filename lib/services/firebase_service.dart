@@ -11,7 +11,7 @@ class FirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  // final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Email & Password Sign Up
   Future<UserCredential> signUpWithEmail(
@@ -91,36 +91,36 @@ class FirebaseService {
   }
 
   // Google Sign In
-  Future<UserCredential> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) throw 'Google Sign In was cancelled';
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      UserCredential userCredential = await _auth.signInWithCredential(credential);
-
-      // Check if this is a new user
-      bool isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
-      if (isNewUser) {
-        await _createUserProfile(
-          userCredential.user!.uid,
-          userCredential.user!.displayName ?? '',
-          userCredential.user!.email ?? '',
-          userCredential.user!.phoneNumber ?? '',
-          'passenger', // Default type for Google Sign In
-        );
-      }
-
-      return userCredential;
-    } catch (e) {
-      rethrow;
-    }
-  }
+  // Future<UserCredential> signInWithGoogle() async {
+  //   try {
+  //     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+  //     if (googleUser == null) throw 'Google Sign In was cancelled';
+  //
+  //     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+  //     final credential = GoogleAuthProvider.credential(
+  //       accessToken: googleAuth.accessToken,
+  //       idToken: googleAuth.idToken,
+  //     );
+  //
+  //     UserCredential userCredential = await _auth.signInWithCredential(credential);
+  //
+  //     // Check if this is a new user
+  //     bool isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
+  //     if (isNewUser) {
+  //       await _createUserProfile(
+  //         userCredential.user!.uid,
+  //         userCredential.user!.displayName ?? '',
+  //         userCredential.user!.email ?? '',
+  //         userCredential.user!.phoneNumber ?? '',
+  //         'passenger', // Default type for Google Sign In
+  //       );
+  //     }
+  //
+  //     return userCredential;
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  // }
 
   // Phone Number Authentication
   Future<void> verifyPhoneNumber({

@@ -68,7 +68,7 @@ class _SignupScreenState extends State<SignupScreen> {
       // Format phone number to include country code
       final formattedPhone = '+234${phone.replaceAll(RegExp(r'\D'), '')}';
 
-      final authProvider = context.read<AuthProvider>();
+      final authProvider = context.read<AppAuthProvider>();
       
       // Register user and create profile
       await authProvider.signUp(
@@ -79,29 +79,31 @@ class _SignupScreenState extends State<SignupScreen> {
         userType: widget.accountType,
       );
 
+      Navigator.of(context).pushReplacementNamed('/home');
+
       // If successful, proceed with phone verification
-      if (mounted) {
-        await authProvider.verifyPhoneNumber(
-          phoneNumber: formattedPhone,
-          onCodeSent: (String verificationId) {
-            if (mounted) {
-              Navigator.pushNamed(
-                context,
-                '/otp-verification',
-                arguments: {
-                  'phoneNumber': formattedPhone,
-                  'verificationId': verificationId,
-                },
-              );
-            }
-          },
-          onError: (String error) {
-            setState(() {
-              _errorMessage = error;
-            });
-          },
-        );
-      }
+      // if (mounted) {
+      //   await authProvider.verifyPhoneNumber(
+      //     phoneNumber: formattedPhone,
+      //     onCodeSent: (String verificationId) {
+      //       if (mounted) {
+      //         Navigator.pushNamed(
+      //           context,
+      //           '/otp-verification',
+      //           arguments: {
+      //             'phoneNumber': formattedPhone,
+      //             'verificationId': verificationId,
+      //           },
+      //         );
+      //       }
+      //     },
+      //     onError: (String error) {
+      //       setState(() {
+      //         _errorMessage = error;
+      //       });
+      //     },
+      //   );
+      // }
     } on FirebaseAuthException catch (e) {
       setState(() {
         switch (e.code) {

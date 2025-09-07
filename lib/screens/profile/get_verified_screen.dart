@@ -56,7 +56,7 @@ class _GetVerifiedScreenState extends State<GetVerifiedScreen> {
     });
 
     try {
-      final provider = context.read<AuthProvider>();
+      final provider = context.read<AppAuthProvider>();
       final user = provider.firebaseUser;
       
       if (user == null) {

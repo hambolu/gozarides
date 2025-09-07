@@ -66,7 +66,7 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
     });
 
     try {
-      final provider = context.read<AuthProvider>();
+      final provider = context.read<AppAuthProvider>();
       
       // Create seller account
       await provider.signUpAsSeller(

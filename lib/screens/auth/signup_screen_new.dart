@@ -75,7 +75,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
     try {
       final formattedPhone = _formatPhoneNumber(phone);
-      final authProvider = context.read<AuthProvider>();
+      final authProvider = context.read<AppAuthProvider>();
       
       // First register the user with email and password
       await authProvider.signUp(
@@ -86,21 +86,22 @@ class _SignupScreenState extends State<SignupScreen> {
         userType: userType,
       );
 
+      Navigator.of(context).pushReplacementNamed('/home');
       // Then send verification code to their phone
-      await authProvider.verifyPhoneNumber(
-        phoneNumber: formattedPhone,
-      );
-      
-      if (mounted) {
-        Navigator.pushNamed(
-          context, 
-          '/otp-verification',
-          arguments: {
-            'phoneNumber': formattedPhone,
-            'verificationId': authProvider.verificationId!,
-          },
-        );
-      }
+      // await authProvider.verifyPhoneNumber(
+      //   phoneNumber: formattedPhone, onCodeSent: (String ) {  }, onError: (String ) {  },
+      // );
+      //
+      // if (mounted) {
+      //   Navigator.pushNamed(
+      //     context,
+      //     '/otp-verification',
+      //     arguments: {
+      //       'phoneNumber': formattedPhone,
+      //       'verificationId': authProvider.verificationId!,
+      //     },
+      //   );
+      // }
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = e.message ?? 'Registration failed';

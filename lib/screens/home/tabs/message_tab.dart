@@ -10,7 +10,7 @@ class MessageTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().user;
+    final user = context.watch<AppAuthProvider>().user;
 
     if (user == null) {
       return const Center(

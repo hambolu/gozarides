@@ -127,7 +127,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Stream<QuerySnapshot> _getNotificationsStream() {
-    final user = context.read<AuthProvider>().firebaseUser;
+    final user = context.read<AppAuthProvider>().firebaseUser;
     if (user == null) return const Stream.empty();
 
     var query = FirebaseFirestore.instance
@@ -149,7 +149,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       String? token = await messaging.getToken();
       if (token != null) {
-        final user = context.read<AuthProvider>().firebaseUser;
+        final user = context.read<AppAuthProvider>().firebaseUser;
         if (user != null) {
           await FirebaseFirestore.instance
               .collection('users')

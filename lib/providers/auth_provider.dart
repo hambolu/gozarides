@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/connectivity_service.dart';
 
-class AuthProvider with ChangeNotifier {
+class AppAuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final ConnectivityService _connectivityService = ConnectivityService();
@@ -12,11 +12,14 @@ class AuthProvider with ChangeNotifier {
   String? _verificationId;
 
   User? get user => _user;
+
   bool get isLoading => _isLoading;
+
   String? get verificationId => _verificationId;
+
   User? get firebaseUser => _user;
 
-  AuthProvider() {
+  AppAuthProvider() {
     _auth.authStateChanges().listen((User? user) {
       _user = user;
       notifyListeners();
@@ -32,7 +35,8 @@ class AuthProvider with ChangeNotifier {
     if (!await _connectivityService.isConnected()) {
       throw FirebaseAuthException(
         code: 'no-internet',
-        message: 'No internet connection. Please check your connection and try again.',
+        message:
+            'No internet connection. Please check your connection and try again.',
       );
     }
   }
@@ -51,38 +55,35 @@ class AuthProvider with ChangeNotifier {
   }) async {
     try {
       setLoading(true);
-      
+
       await _checkConnectivity();
-      
+
       // Validate email format
       if (!email.contains('@')) {
         throw FirebaseAuthException(
-          code: 'invalid-email',
-          message: 'The email address is invalid.'
-        );
+            code: 'invalid-email', message: 'The email address is invalid.');
       }
 
       // Validate user type
       if (userType != 'buyer' && userType != 'seller') {
         throw FirebaseAuthException(
-          code: 'invalid-user-type',
-          message: 'User type must be either buyer or seller'
-        );
+            code: 'invalid-user-type',
+            message: 'User type must be either buyer or seller');
       }
-      
+
       // Create user with email and password
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      
+
       _user = userCredential.user;
-      
+
+      await _user!.sendEmailVerification();
+
       if (_user == null) {
         throw FirebaseAuthException(
-          code: 'null-user',
-          message: 'Failed to create user account'
-        );
+            code: 'null-user', message: 'Failed to create user account');
       }
 
       // Update display name
@@ -114,15 +115,14 @@ class AuthProvider with ChangeNotifier {
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         };
-        
+
         await _firestore.collection('users').doc(_user!.uid).set(userData);
       } catch (e) {
         // If profile creation fails, delete the auth user
         await _user!.delete();
         throw FirebaseAuthException(
-          code: 'profile-creation-failed',
-          message: 'Failed to create user profile. Please try again.'
-        );
+            code: 'profile-creation-failed',
+            message: 'Failed to create user profile. Please try again.');
       }
 
       notifyListeners();
@@ -131,9 +131,7 @@ class AuthProvider with ChangeNotifier {
         rethrow;
       }
       throw FirebaseAuthException(
-        code: 'signup-failed',
-        message: 'Failed to create account: $e'
-      );
+          code: 'signup-failed', message: 'Failed to create account: $e');
     } finally {
       setLoading(false);
     }
@@ -156,12 +154,13 @@ class AuthProvider with ChangeNotifier {
       _user = userCredential.user;
 
       // Get user's data from Firestore
-      final userDoc = await _firestore.collection('users').doc(_user!.uid).get();
+      final userDoc =
+          await _firestore.collection('users').doc(_user!.uid).get();
       if (!userDoc.exists) {
         throw FirebaseAuthException(
-          code: 'user-not-found',
-          message: 'User profile not found. Please try again or contact support.'
-        );
+            code: 'user-not-found',
+            message:
+                'User profile not found. Please try again or contact support.');
       }
 
       notifyListeners();
@@ -169,29 +168,27 @@ class AuthProvider with ChangeNotifier {
       switch (e.code) {
         case 'user-not-found':
           throw FirebaseAuthException(
-            code: 'user-not-found',
-            message: 'No user found with this email. Please check and try again.'
-          );
+              code: 'user-not-found',
+              message:
+                  'No user found with this email. Please check and try again.');
         case 'wrong-password':
           throw FirebaseAuthException(
-            code: 'wrong-password',
-            message: 'Incorrect password. Please try again.'
-          );
+              code: 'wrong-password',
+              message: 'Incorrect password. Please try again.');
         case 'user-disabled':
           throw FirebaseAuthException(
-            code: 'user-disabled',
-            message: 'This account has been disabled. Please contact support.'
-          );
+              code: 'user-disabled',
+              message:
+                  'This account has been disabled. Please contact support.');
         case 'invalid-email':
           throw FirebaseAuthException(
-            code: 'invalid-email',
-            message: 'The email address is not valid. Please check and try again.'
-          );
+              code: 'invalid-email',
+              message:
+                  'The email address is not valid. Please check and try again.');
         default:
           throw FirebaseAuthException(
-            code: e.code,
-            message: e.message ?? 'Failed to sign in. Please try again.'
-          );
+              code: e.code,
+              message: e.message ?? 'Failed to sign in. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -208,7 +205,7 @@ class AuthProvider with ChangeNotifier {
 
       // Check for internet connectivity
       await _checkConnectivity();
-      
+
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
@@ -241,7 +238,7 @@ class AuthProvider with ChangeNotifier {
       setLoading(true);
 
       await _checkConnectivity();
-      
+
       final PhoneAuthCredential credential = PhoneAuthProvider.credential(
         verificationId: verificationId,
         smsCode: smsCode,
@@ -250,7 +247,7 @@ class AuthProvider with ChangeNotifier {
       if (_user != null) {
         // Link phone credential to existing account
         await _user!.linkWithCredential(credential);
-        
+
         // Update phone verification status
         await _firestore.collection('users').doc(_user!.uid).update({
           'isPhoneVerified': true,
@@ -259,9 +256,8 @@ class AuthProvider with ChangeNotifier {
       } else {
         // This shouldn't happen in normal flow since user should be created first
         throw FirebaseAuthException(
-          code: 'no-user',
-          message: 'Please sign up before verifying phone number'
-        );
+            code: 'no-user',
+            message: 'Please sign up before verifying phone number');
       }
 
       notifyListeners();
@@ -270,9 +266,7 @@ class AuthProvider with ChangeNotifier {
         rethrow;
       }
       throw FirebaseAuthException(
-        code: 'verification-failed',
-        message: 'Failed to verify OTP: $e'
-      );
+          code: 'verification-failed', message: 'Failed to verify OTP: $e');
     } finally {
       setLoading(false);
     }
@@ -290,22 +284,20 @@ class AuthProvider with ChangeNotifier {
   }) async {
     try {
       setLoading(true);
-      
+
       await _checkConnectivity();
-      
+
       // Create user with email and password
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      
+
       _user = userCredential.user;
-      
+
       if (_user == null) {
         throw FirebaseAuthException(
-          code: 'null-user',
-          message: 'Failed to create seller account'
-        );
+            code: 'null-user', message: 'Failed to create seller account');
       }
 
       // Update display name
@@ -335,9 +327,8 @@ class AuthProvider with ChangeNotifier {
         // Delete the auth user since profile creation failed
         await _user!.delete();
         throw FirebaseAuthException(
-          code: 'profile-creation-failed',
-          message: 'Failed to create seller profile. Please try again.'
-        );
+            code: 'profile-creation-failed',
+            message: 'Failed to create seller profile. Please try again.');
       }
 
       notifyListeners();
@@ -346,9 +337,8 @@ class AuthProvider with ChangeNotifier {
         rethrow;
       }
       throw FirebaseAuthException(
-        code: 'signup-failed',
-        message: 'Failed to create seller account: $e'
-      );
+          code: 'signup-failed',
+          message: 'Failed to create seller account: $e');
     } finally {
       setLoading(false);
     }
@@ -357,14 +347,12 @@ class AuthProvider with ChangeNotifier {
   Future<void> updateUserProfile(Map<String, dynamic> data) async {
     try {
       setLoading(true);
-      
+
       await _checkConnectivity();
 
       if (_user == null) {
         throw FirebaseAuthException(
-          code: 'no-user',
-          message: 'No authenticated user found'
-        );
+            code: 'no-user', message: 'No authenticated user found');
       }
 
       await _firestore.collection('users').doc(_user!.uid).update({
@@ -378,9 +366,7 @@ class AuthProvider with ChangeNotifier {
         rethrow;
       }
       throw FirebaseAuthException(
-        code: 'update-failed',
-        message: 'Failed to update profile: $e'
-      );
+          code: 'update-failed', message: 'Failed to update profile: $e');
     } finally {
       setLoading(false);
     }
