@@ -21,12 +21,6 @@ class ApiClient {
 
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
     try {
-      print('\n==========================================');
-      print('🌐 API REQUEST');
-      print('==========================================');
-      print('Endpoint: $endpoint');
-      print('Payload: $data');
-      print('==========================================\n');
 
       final url = Uri.parse('$baseUrl/$endpoint');
       developer.log('POST Request to: $url');
@@ -39,24 +33,12 @@ class ApiClient {
         body: jsonEncode(data),
       );
 
-      print('\n==========================================');
-      print('📥 API RESPONSE');
-      print('==========================================');
-      print('Status Code: ${response.statusCode}');
-      print('Headers: ${response.headers}');
-      print('Body: ${response.body}');
-      print('==========================================\n');
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return json.decode(response.body);
       } else {
         final errorBody = json.decode(response.body);
-        print('\n==========================================');
-        print('❌ API ERROR DETAILS');
-        print('==========================================');
-        print('Status Code: ${response.statusCode}');
-        print('Error Body: $errorBody');
-        print('==========================================\n');
+        
         
         throw ApiException(
           message: errorBody['message'] ?? 'An error occurred',
